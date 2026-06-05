@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     await connectDB();
     const all = await Settings.find().lean();
     const result: Record<string, string> = {};
-    for (const s of all as Array<{ key: string; value: string }>) result[s.key] = s.value;
+    for (const s of all as unknown as Array<{ key: string; value: string }>) result[s.key] = s.value;
     return NextResponse.json(result);
   } catch {
     return NextResponse.json({ error: 'Ayarlar yüklenemedi' }, { status: 500 });
