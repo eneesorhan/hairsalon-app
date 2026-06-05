@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, ChevronLeft, Save, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { LogOut, ChevronLeft, Save, Clock, AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 
 interface BusinessHour {
   _id?: string;
@@ -31,12 +31,15 @@ export default function AdminSettingsPage() {
   const [hours, setHours] = useState<BusinessHour[]>(DEFAULT_HOURS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [notificationEmail, setNotificationEmail] = useState('');
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (!token) { router.push('/admin/login'); return; }
     fetchHours();
+    fetchSettings();
   }, [router]);
 
   useEffect(() => {
@@ -44,6 +47,38 @@ export default function AdminSettingsPage() {
     const t = setTimeout(() => setToast(null), 3000);
     return () => clearTimeout(t);
   }, [toast]);
+
+  const fetchSettings = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch('/api/admin/settings', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.notificationEmail) setNotificationEmail(data.notificationEmail);
+    } catch {
+      // sessizce geç
+    }
+  };
+
+  const handleSaveEmail = async () => {
+    setSavingEmail(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationEmail }),
+      });
+      if (!res.ok) throw new Error();
+      setToast({ type: 'success', message: 'Bildirim e-postası kaydedildi!' });
+    } catch {
+      setToast({ type: 'error', message: 'Kaydetme başarısız.' });
+    } finally {
+      setSavingEmail(false);
+    }
+  };
 
   const fetchHours = async () => {
     try {
@@ -143,7 +178,35 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        {/* Notification Email Section */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-purple-200/50 dark:border-purple-900/50 overflow-hidden">
+          <div className="px-6 py-5 border-b border-purple-200/50 dark:border-purple-900/50 flex items-center gap-3">
+            <Mail className="w-6 h-6 text-purple-600" />
+            <div>
+              <h2 className="text-xl font-bold">Bildirim E-postası</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Yeni randevu geldiğinde bu adrese mail gönderilir</p>
+            </div>
+          </div>
+          <div className="px-6 py-5 flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              value={notificationEmail}
+              onChange={(e) => setNotificationEmail(e.target.value)}
+              placeholder="ornek@gmail.com"
+              className="flex-1 p-3 border-2 border-purple-200 dark:border-purple-900/50 rounded-lg focus:border-purple-600 focus:outline-none dark:bg-slate-700 dark:text-white"
+            />
+            <button
+              onClick={handleSaveEmail}
+              disabled={savingEmail}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold transition-all disabled:opacity-50 whitespace-nowrap"
+            >
+              <Save className="w-5 h-5" />
+              {savingEmail ? 'Kaydediliyor...' : 'Kaydet'}
+            </button>
+          </div>
+        </div>
+
         {/* Business Hours Section */}
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-purple-200/50 dark:border-purple-900/50 overflow-hidden">
           <div className="px-6 py-5 border-b border-purple-200/50 dark:border-purple-900/50 flex items-center gap-3">

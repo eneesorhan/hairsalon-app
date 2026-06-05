@@ -134,7 +134,20 @@ export async function sendAdminNotification(
   date: string,
   time: string
 ): Promise<void> {
-  const adminEmail = SMTP_USER;
+  await connectDB();
+
+  // Ayarlardan bildirim emailini al, yoksa SMTP_USER'ı kullan
+  let adminEmail = SMTP_USER;
+  try {
+    const mongoose = await import('mongoose');
+    const Settings = mongoose.models.Settings ||
+      mongoose.model('Settings', new mongoose.Schema({ key: String, value: String }, { collection: 'settings' }));
+    const setting = await Settings.findOne({ key: 'notificationEmail' }).lean() as { value?: string } | null;
+    if (setting?.value) adminEmail = setting.value;
+  } catch {
+    // Ayar okunamazsa varsayılanı kullan
+  }
+
   if (!adminEmail) return;
 
   const html = `
