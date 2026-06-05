@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
 import Link from 'next/link';
 
@@ -15,7 +14,6 @@ interface Service {
 }
 
 export default function AppointmentPage() {
-  const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<string>('');
