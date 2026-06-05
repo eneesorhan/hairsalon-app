@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { getAppointmentStats } from '@/lib/timeslot-service';
 import { Service } from '@/models/Service';
-import { getTodayInLondon, getDateInDays } from '@/lib/time';
+import { getDateInDays } from '@/lib/time';
 import { verify } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.API_SECRET || 'your-secret-key';

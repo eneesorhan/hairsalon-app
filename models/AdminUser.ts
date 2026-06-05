@@ -56,8 +56,10 @@ const adminUserSchema = new Schema<IAdminUser>(
 
 // Şifre alanı gösterilmeyecek
 adminUserSchema.set('toJSON', {
-  transform: (doc, ret) => {
-    delete ret.passwordHash;
+  transform: (_doc, ret) => {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    const r = ret as unknown as Record<string, unknown>;
+    delete r['passwordHash'];
     return ret;
   },
 });

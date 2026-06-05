@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { Appointment } from '@/models/Appointment';
-import { TimeSlot } from '@/models/TimeSlot';
-import { releaseTimeSlot, bookTimeSlot } from '@/lib/timeslot-service';
+import { bookTimeSlot } from '@/lib/timeslot-service';
 import { verify } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.API_SECRET || 'your-secret-key';

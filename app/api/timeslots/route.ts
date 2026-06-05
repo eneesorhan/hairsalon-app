@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
-import { TimeSlot } from '@/models/TimeSlot';
 import { getAvailableSlots } from '@/lib/timeslot-service';
 
 export async function GET(req: NextRequest) {

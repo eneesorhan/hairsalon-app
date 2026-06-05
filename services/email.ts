@@ -92,7 +92,7 @@ export async function sendAppointmentConfirmation(
   `;
 
   try {
-    const messageId = await sendEmail({
+    await sendEmail({
       to: customerEmail,
       subject: 'Randevu Onayınız - Hair Salon Pro',
       html,
