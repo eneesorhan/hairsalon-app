@@ -124,6 +124,49 @@ export async function sendAppointmentConfirmation(
 }
 
 /**
+ * Admin'e yeni randevu bildirimi gönder
+ */
+export async function sendAdminNotification(
+  customerName: string,
+  customerEmail: string,
+  customerPhone: string,
+  serviceName: string,
+  date: string,
+  time: string
+): Promise<void> {
+  const adminEmail = SMTP_USER;
+  if (!adminEmail) return;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0; font-size: 22px;">🔔 Yeni Randevu Geldi!</h1>
+      </div>
+      <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+        <div style="background-color: white; border-left: 4px solid #4f46e5; padding: 20px; border-radius: 4px; margin-bottom: 20px;">
+          <p style="margin: 8px 0;"><strong>👤 Müşteri:</strong> ${customerName}</p>
+          <p style="margin: 8px 0;"><strong>📧 E-posta:</strong> ${customerEmail}</p>
+          <p style="margin: 8px 0;"><strong>📞 Telefon:</strong> ${customerPhone}</p>
+          <p style="margin: 8px 0; border-top: 1px solid #eee; padding-top: 8px;"><strong>✂️ Hizmet:</strong> ${serviceName}</p>
+          <p style="margin: 8px 0;"><strong>📅 Tarih:</strong> ${date}</p>
+          <p style="margin: 8px 0;"><strong>🕐 Saat:</strong> ${time}</p>
+        </div>
+        <a href="${process.env.NEXT_PUBLIC_API_URL}/admin/appointments"
+           style="display: inline-block; background: #4f46e5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">
+          Admin Panelde Gör →
+        </a>
+      </div>
+    </div>
+  `;
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `🔔 Yeni Randevu: ${customerName} - ${date} ${time}`,
+    html,
+  });
+}
+
+/**
  * Randevu hatırlatma maili gönder
  */
 export async function sendAppointmentReminder(

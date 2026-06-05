@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/db';
 import { Appointment } from '@/models/Appointment';
 import { Service } from '@/models/Service';
 import { bookTimeSlot } from '@/lib/timeslot-service';
-import { sendAppointmentConfirmation } from '@/services/email';
+import { sendAppointmentConfirmation, sendAdminNotification } from '@/services/email';
 import { calculateEndTime, isTimeInFuture } from '@/lib/time';
 
 export async function POST(req: NextRequest) {
@@ -70,7 +70,20 @@ export async function POST(req: NextRequest) {
       await appointment.save();
     } catch (emailError) {
       console.error('Email gönderme hatası:', emailError);
-      // E-posta hatası randevu oluşturmayı başarısız yapmasın
+    }
+
+    // Admin'e bildirim gönder
+    try {
+      await sendAdminNotification(
+        customerName,
+        customerEmail,
+        customerPhone,
+        service.name,
+        date,
+        startTime
+      );
+    } catch (adminEmailError) {
+      console.error('Admin bildirim hatası:', adminEmailError);
     }
 
     return NextResponse.json(appointment, { status: 201 });
